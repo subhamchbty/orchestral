@@ -1,6 +1,7 @@
 {
     "name": "subhamchbty/orchestral",
     "description": "Orchestrate and conduct your Laravel long-running processes with elegance",
+    "version": "0.1.0-beta",
     "type": "library",
     "keywords": [
         "laravel",

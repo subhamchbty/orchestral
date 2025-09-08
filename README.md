@@ -1,5 +1,12 @@
 # 🎼 Orchestral - Laravel Process Manager
 
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/subhamchbty/orchestral.svg?style=flat-square)](https://packagist.org/packages/subhamchbty/orchestral)
+[![Total Downloads](https://img.shields.io/packagist/dt/subhamchbty/orchestral.svg?style=flat-square)](https://packagist.org/packages/subhamchbty/orchestral)
+[![License](https://img.shields.io/packagist/l/subhamchbty/orchestral.svg?style=flat-square)](https://packagist.org/packages/subhamchbty/orchestral)
+[![PHP Version](https://img.shields.io/packagist/php-v/subhamchbty/orchestral.svg?style=flat-square)](https://packagist.org/packages/subhamchbty/orchestral)
+
+> ⚠️ **Beta Release**: This package is currently in beta. While functional, it may contain bugs and the API may change before the stable release.
+
 Orchestral is an elegant Laravel package for orchestrating and conducting long-running processes with the grace of a symphony conductor. It provides a Horizon-like supervisor configuration system for managing commands like `queue:work`, `schedule:work`, and any custom long-running processes.
 
 ## ✨ Features
@@ -19,7 +26,11 @@ Orchestral is an elegant Laravel package for orchestrating and conducting long-r
 You can install the package via composer:
 
 ```bash
-composer require subhamchbty/orchestral
+# For beta version
+composer require subhamchbty/orchestral:^0.1.0@beta
+
+# Or for latest beta
+composer require subhamchbty/orchestral:@beta
 ```
 
 The package will auto-register its service provider.
