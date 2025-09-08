@@ -1,0 +1,54 @@
+{
+    "name": "subhamchbty/orchestral",
+    "description": "Orchestrate and conduct your Laravel long-running processes with elegance",
+    "type": "library",
+    "keywords": [
+        "laravel",
+        "supervisor",
+        "process",
+        "orchestrator",
+        "conductor",
+        "queue",
+        "scheduler"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Subham Chakraborty",
+            "email": "subhamchakraborty81@gmail.com"
+        }
+    ],
+    "homepage": "https://github.com/subhamchbty/orchestral",
+    "support": {
+        "issues": "https://github.com/subhamchbty/orchestral/issues",
+        "source": "https://github.com/subhamchbty/orchestral"
+    },
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^12.0",
+        "symfony/process": "^7.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0",
+        "pestphp/pest": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Subhamchbty\\Orchestral\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Subhamchbty\\Orchestral\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Subhamchbty\\Orchestral\\OrchestralServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
