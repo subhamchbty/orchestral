@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Subhamchbty\Orchestral\Conductor\ProcessRegistry;
 use Subhamchbty\Orchestral\Models\Performance;
+
 uses(RefreshDatabase::class);
 
 beforeEach(function () {

@@ -58,6 +58,6 @@ return new class extends Migration
         $connection = config('database.default');
         $driver = config("database.connections.{$connection}.driver");
 
-        return !in_array($driver, ['mongodb']);
+        return ! in_array($driver, ['mongodb']);
     }
 };
