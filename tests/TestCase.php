@@ -11,8 +11,18 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        // Run migrations for tests that need the database
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        // Run the migration for tests that need the database
+        $this->runPackageMigrations();
+    }
+
+    protected function runPackageMigrations(): void
+    {
+        // Include the migration stub and run it
+        $migration = include __DIR__.'/../database/migrations/create_orchestral_performances_table.php.stub';
+
+        if (is_object($migration)) {
+            $migration->up();
+        }
     }
 
     protected function getPackageProviders($app)

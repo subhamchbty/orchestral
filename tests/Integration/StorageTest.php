@@ -96,8 +96,11 @@ it('handles storage driver switching', function () {
     // Start with Redis
     Config::set('orchestral.storage.driver', 'redis');
 
+    // Use current process PID for testing
+    $currentPid = getmypid();
+
     $this->registry->savePerformers([
-        ['name' => 'redis-worker', 'pid' => 12345, 'command' => 'test'],
+        ['name' => 'redis-worker', 'pid' => $currentPid, 'command' => 'test'],
     ]);
 
     $loaded = $this->registry->loadPerformers();
@@ -116,13 +119,16 @@ it('maintains data integrity with concurrent access', function () {
     $registry1 = new ProcessRegistry;
     $registry2 = new ProcessRegistry;
 
+    // Use current process PID for testing
+    $currentPid = getmypid();
+
     // Simulate concurrent writes
     $registry1->savePerformers([
-        ['name' => 'worker-1', 'pid' => 12345, 'command' => 'test1'],
+        ['name' => 'worker-1', 'pid' => $currentPid, 'command' => 'test1'],
     ]);
 
     $registry2->savePerformers([
-        ['name' => 'worker-2', 'pid' => 12346, 'command' => 'test2'],
+        ['name' => 'worker-2', 'pid' => $currentPid, 'command' => 'test2'],
     ]);
 
     // Last write wins
@@ -179,9 +185,12 @@ it('cleans up expired process data', function () {
 });
 
 it('handles different cache configurations', function () {
+    // Use current process PID for testing
+    $currentPid = getmypid();
+
     // Test with array cache (default in testing)
     $this->registry->savePerformers([
-        ['name' => 'array-worker', 'pid' => 12345, 'command' => 'test'],
+        ['name' => 'array-worker', 'pid' => $currentPid, 'command' => 'test'],
     ]);
 
     $loaded = $this->registry->loadPerformers();

@@ -1,23 +1,9 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Schema;
 use Subhamchbty\Orchestral\Models\Performance;
 
 uses(RefreshDatabase::class);
-
-beforeEach(function () {
-    // Create the table for testing
-    Schema::create('orchestral_performances', function ($table) {
-        $table->id();
-        $table->string('event');
-        $table->string('performer_name')->nullable();
-        $table->string('environment');
-        $table->json('data')->nullable();
-        $table->timestamp('occurred_at');
-        $table->timestamps();
-    });
-});
 
 it('creates a performance record', function () {
     $performance = Performance::create([
