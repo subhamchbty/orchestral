@@ -4,9 +4,6 @@ use Subhamchbty\Orchestral\Conductor\Conductor;
 use Subhamchbty\Orchestral\Conductor\Performer;
 use Subhamchbty\Orchestral\Conductor\ProcessRegistry;
 use Subhamchbty\Orchestral\Conductor\Score;
-use Subhamchbty\Orchestral\Tests\TestCase;
-
-uses(TestCase::class);
 
 it('prevents command injection through performance configuration', function () {
     $maliciousConfigs = [

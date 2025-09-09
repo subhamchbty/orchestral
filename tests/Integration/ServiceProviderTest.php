@@ -12,9 +12,6 @@ use Subhamchbty\Orchestral\Conductor\Conductor;
 use Subhamchbty\Orchestral\Conductor\ProcessRegistry;
 use Subhamchbty\Orchestral\Conductor\Score;
 use Subhamchbty\Orchestral\OrchestralServiceProvider;
-use Subhamchbty\Orchestral\Tests\TestCase;
-
-uses(TestCase::class);
 
 it('registers the service provider', function () {
     $providers = $this->app->getLoadedProviders();

@@ -23,7 +23,7 @@ class OrchestralServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton(Score::class, function ($app) {
-            return new Score($app['config']['orchestral']);
+            return new Score($app['config']['orchestral'] ?? []);
         });
 
         $this->app->singleton(ProcessRegistry::class, function ($app) {
@@ -33,7 +33,7 @@ class OrchestralServiceProvider extends ServiceProvider
         $this->app->singleton(Conductor::class, function ($app) {
             return new Conductor(
                 $app->make(Score::class),
-                $app['config']['orchestral'],
+                $app['config']['orchestral'] ?? [],
                 $app->make(ProcessRegistry::class)
             );
         });

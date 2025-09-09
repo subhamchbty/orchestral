@@ -17,7 +17,7 @@ class Performer
 
     protected ?int $pid = null;
 
-    protected Carbon $startedAt;
+    protected ?Carbon $startedAt = null;
 
     protected int $restartAttempts = 0;
 

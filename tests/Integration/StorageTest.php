@@ -5,9 +5,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Subhamchbty\Orchestral\Conductor\ProcessRegistry;
 use Subhamchbty\Orchestral\Models\Performance;
-use Subhamchbty\Orchestral\Tests\TestCase;
-
-uses(TestCase::class, RefreshDatabase::class);
+uses(RefreshDatabase::class);
 
 beforeEach(function () {
     // Clear cache before each test

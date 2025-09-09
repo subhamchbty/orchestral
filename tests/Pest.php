@@ -2,4 +2,4 @@
 
 use Subhamchbty\Orchestral\Tests\TestCase;
 
-uses(TestCase::class)->in('Feature', 'Unit');
+uses(TestCase::class)->in('Feature', 'Unit', 'Integration', 'Security');
