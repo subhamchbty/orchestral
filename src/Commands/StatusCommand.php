@@ -30,11 +30,12 @@ class StatusCommand extends Command
                 $output['health'] = $this->conductor->healthCheck();
             }
             $this->line(json_encode($output, JSON_PRETTY_PRINT));
+
             return self::SUCCESS;
         }
 
         $this->displayPerformers($status);
-        
+
         if ($includeHealth) {
             $this->displayHealthStatus();
         }
@@ -42,11 +43,11 @@ class StatusCommand extends Command
         return self::SUCCESS;
     }
 
-
     protected function displayPerformers(array $status): void
     {
         if (empty($status['performers'])) {
             $this->info('No performers running');
+
             return;
         }
 
@@ -55,7 +56,7 @@ class StatusCommand extends Command
 
         foreach ($status['performers'] as $performer) {
             $statusText = $performer['running'] ? 'Running' : 'Stopped';
-            
+
             $rows[] = [
                 $performer['name'],
                 $performer['pid'] ?? '-',
@@ -67,7 +68,7 @@ class StatusCommand extends Command
         }
 
         $this->table($headers, $rows);
-        
+
         if ($status['total_performers'] > 0) {
             $this->info("Total: {$status['total_performers']} | Running: {$status['running_performers']}");
         }
@@ -76,15 +77,15 @@ class StatusCommand extends Command
     protected function displayHealthStatus(): void
     {
         $health = $this->conductor->healthCheck();
-        
+
         $this->line('');
         $this->info('Health Status:');
-        
+
         foreach ($health as $performerName => $status) {
             $healthText = $status['healthy'] ? 'Healthy' : 'Issues';
             $this->line("{$performerName}: {$healthText}");
-            
-            if (!$status['healthy'] && !empty($status['issues'])) {
+
+            if (! $status['healthy'] && ! empty($status['issues'])) {
                 foreach ($status['issues'] as $issue) {
                     $this->line("  • {$issue}");
                 }
@@ -97,12 +98,12 @@ class StatusCommand extends Command
         if ($memory === null) {
             return '-';
         }
-        
+
         if ($memory > 1024) {
-            return round($memory / 1024, 2) . ' GB';
+            return round($memory / 1024, 2).' GB';
         }
-        
-        return $memory . ' MB';
+
+        return $memory.' MB';
     }
 
     protected function formatCpu($cpu): string
@@ -110,7 +111,7 @@ class StatusCommand extends Command
         if ($cpu === null) {
             return '-';
         }
-        
-        return $cpu . '%';
+
+        return $cpu.'%';
     }
 }

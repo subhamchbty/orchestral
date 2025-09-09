@@ -23,17 +23,17 @@ class OrchestralServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton(Score::class, function ($app) {
-            return new Score($app['config']['orchestral']);
+            return new Score($app['config']['orchestral'] ?? []);
         });
 
         $this->app->singleton(ProcessRegistry::class, function ($app) {
-            return new ProcessRegistry();
+            return new ProcessRegistry;
         });
 
         $this->app->singleton(Conductor::class, function ($app) {
             return new Conductor(
                 $app->make(Score::class),
-                $app['config']['orchestral'],
+                $app['config']['orchestral'] ?? [],
                 $app->make(ProcessRegistry::class)
             );
         });
@@ -56,7 +56,7 @@ class OrchestralServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../config/orchestral.php' => config_path('orchestral.php'),
             ], 'orchestral');
-            
+
             $this->publishesMigrations([
                 __DIR__.'/../database/migrations/create_orchestral_performances_table.php.stub' => 'create_orchestral_performances_table.php',
             ], 'orchestral');

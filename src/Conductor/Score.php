@@ -7,6 +7,7 @@ use Illuminate\Support\Arr;
 class Score
 {
     protected array $config;
+
     protected string $environment;
 
     public function __construct(array $config)
@@ -92,18 +93,18 @@ class Score
 
     public function buildCommand(array $performance): string
     {
-        $command = 'php artisan ' . $performance['command'];
-        
-        if (!empty($performance['options'])) {
+        $command = 'php artisan '.$performance['command'];
+
+        if (! empty($performance['options'])) {
             foreach ($performance['options'] as $key => $value) {
                 if (is_numeric($key)) {
-                    $command .= ' ' . $value;
+                    $command .= ' '.$value;
                 } else {
-                    $command .= ' ' . $key . '=' . $value;
+                    $command .= ' '.$key.'='.$value;
                 }
             }
         }
-        
+
         return $command;
     }
 }

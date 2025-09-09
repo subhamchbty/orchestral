@@ -33,7 +33,7 @@ class InstallCommand extends Command
         } else {
             // Full installation - ask about storage preference
             $this->publishConfig();
-            
+
             $this->line('');
             $this->info('🗄️ Storage Configuration:');
             $this->line('Orchestral can store process information using:');
@@ -60,7 +60,7 @@ class InstallCommand extends Command
         $this->line('');
         $this->info('✨ Orchestral installation complete!');
         $this->line('');
-        
+
         $this->displayNextSteps($useRedis ?? 'redis');
 
         return self::SUCCESS;
@@ -72,8 +72,9 @@ class InstallCommand extends Command
         $stubPath = __DIR__.'/../../config/orchestral.php';
 
         if ($this->files->exists($configPath)) {
-            if (!$this->confirm('Config file already exists. Overwrite?')) {
+            if (! $this->confirm('Config file already exists. Overwrite?')) {
                 $this->warn('⏭️ Skipped config publishing');
+
                 return;
             }
         }
@@ -91,9 +92,10 @@ class InstallCommand extends Command
 
         // Check if migration already exists
         $existingMigrations = $this->files->glob(database_path('migrations/*_create_orchestral_performances_table.php'));
-        if (!empty($existingMigrations)) {
-            if (!$this->confirm('Orchestral migration already exists. Create another one?')) {
+        if (! empty($existingMigrations)) {
+            if (! $this->confirm('Orchestral migration already exists. Create another one?')) {
                 $this->warn('⏭️ Skipped migration publishing');
+
                 return;
             }
         }
@@ -105,14 +107,15 @@ class InstallCommand extends Command
     protected function updateStorageConfig(string $driver): void
     {
         $configPath = config_path('orchestral.php');
-        
-        if (!$this->files->exists($configPath)) {
+
+        if (! $this->files->exists($configPath)) {
             $this->error('Config file not found. Please run the command again.');
+
             return;
         }
 
         $content = $this->files->get($configPath);
-        
+
         // Update the storage driver in the config file
         $content = preg_replace(
             "/'driver' => env\('ORCHESTRAL_STORAGE_DRIVER', '[^']+'\)/",
@@ -138,9 +141,10 @@ class InstallCommand extends Command
     protected function updateEnvironmentFile(string $filename, array $envVars): void
     {
         $envPath = base_path($filename);
-        
-        if (!$this->files->exists($envPath)) {
+
+        if (! $this->files->exists($envPath)) {
             $this->warn("⚠️ {$filename} not found, skipping environment variable updates");
+
             return;
         }
 
@@ -160,7 +164,7 @@ class InstallCommand extends Command
         }
 
         $this->files->put($envPath, $content);
-        
+
         if ($updated || $filename === '.env') {
             $this->info("🔧 Updated {$filename} with Orchestral environment variables");
         }
@@ -169,7 +173,7 @@ class InstallCommand extends Command
     protected function displayNextSteps(string $storageDriver): void
     {
         $this->info('📋 Next steps:');
-        
+
         if ($storageDriver === 'database') {
             $this->line('1. Run: php artisan migrate');
             $this->line('2. Configure your performances in config/orchestral.php');
@@ -179,11 +183,11 @@ class InstallCommand extends Command
             $this->line('2. Configure your performances in config/orchestral.php');
             $this->line('3. Start conducting: php artisan orchestral:conduct');
         }
-        
+
         $this->line('');
         $this->info('💡 Tip: You can always publish migrations later with:');
         $this->line('   php artisan orchestral:install --migrations');
-        
+
         $this->line('');
         $this->info('🎼 Available commands:');
         $this->line('• orchestral:conduct    - Start all processes');

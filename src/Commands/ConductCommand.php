@@ -25,7 +25,7 @@ class ConductCommand extends Command
 
         try {
             $this->conductor->conduct($performance);
-            
+
             $this->displayStatus();
 
             if ($isDaemon) {
@@ -34,7 +34,8 @@ class ConductCommand extends Command
 
             return self::SUCCESS;
         } catch (\Exception $e) {
-            $this->error('❌ Error: ' . $e->getMessage());
+            $this->error('❌ Error: '.$e->getMessage());
+
             return self::FAILURE;
         }
     }
@@ -42,7 +43,7 @@ class ConductCommand extends Command
     protected function runInDaemonMode(): void
     {
         $this->info('👁️ Running in daemon mode. Press Ctrl+C to stop...');
-        
+
         pcntl_async_signals(true);
         pcntl_signal(SIGINT, [$this, 'handleShutdown']);
         pcntl_signal(SIGTERM, [$this, 'handleShutdown']);
@@ -62,7 +63,7 @@ class ConductCommand extends Command
     protected function displayStatus(): void
     {
         $status = $this->conductor->getStatus();
-        
+
         $this->table(
             ['Performer', 'PID', 'Status', 'Uptime', 'Memory (MB)', 'CPU (%)'],
             collect($status['performers'])->map(function ($performer) {

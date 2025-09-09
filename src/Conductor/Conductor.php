@@ -2,16 +2,20 @@
 
 namespace Subhamchbty\Orchestral\Conductor;
 
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Subhamchbty\Orchestral\Models\Performance;
-use Carbon\Carbon;
 
 class Conductor
 {
     protected Score $score;
+
     protected array $config;
+
     protected Collection $performers;
+
     protected ProcessRegistry $registry;
+
     protected bool $conducting = false;
 
     public function __construct(Score $score, array $config, ProcessRegistry $registry)
@@ -25,12 +29,12 @@ class Conductor
 
     public function conduct(?string $performanceName = null): void
     {
-        $performances = $performanceName 
+        $performances = $performanceName
             ? [$performanceName => $this->score->getPerformance($performanceName)]
             : $this->score->getPerformances();
 
         foreach ($performances as $name => $config) {
-            if (!$config) {
+            if (! $config) {
                 continue;
             }
 
@@ -39,25 +43,25 @@ class Conductor
 
         $this->conducting = true;
         $this->registry->setConducting(true);
-        
+
         // Give processes a moment to start and get their PIDs
         usleep(500000); // 0.5 seconds
-        
+
         $this->registry->savePerformers($this->performers->toArray());
         $this->recordPerformanceStart();
     }
 
     public function pause(?string $performanceName = null): void
     {
-        $performers = $performanceName 
-            ? $this->performers->filter(fn($p) => str_starts_with($p->getName(), $performanceName))
+        $performers = $performanceName
+            ? $this->performers->filter(fn ($p) => str_starts_with($p->getName(), $performanceName))
             : $this->performers;
 
         foreach ($performers as $performer) {
             $performer->stop();
         }
 
-        if (!$performanceName) {
+        if (! $performanceName) {
             $this->conducting = false;
             $this->registry->setConducting(false);
             $this->registry->clearPerformers();
@@ -77,13 +81,13 @@ class Conductor
     public function getStatus(): array
     {
         $this->loadExistingPerformers();
-        
+
         return [
             'conducting' => $this->registry->isConducting(),
             'environment' => $this->score->getEnvironment(),
             'performers' => $this->buildPerformerStatus(),
             'total_performers' => count($this->registry->loadPerformers()),
-            'running_performers' => count(array_filter($this->registry->loadPerformers(), fn($p) => $this->registry->getProcessInfo($p['pid']))),
+            'running_performers' => count(array_filter($this->registry->loadPerformers(), fn ($p) => $this->registry->getProcessInfo($p['pid']))),
         ];
     }
 
@@ -108,7 +112,7 @@ class Conductor
     public function healthCheck(): array
     {
         $healthStatus = [];
-        
+
         foreach ($this->performers as $performer) {
             $healthStatus[$performer->getName()] = $performer->checkHealth();
         }
@@ -120,15 +124,15 @@ class Conductor
     {
         // Load current processes from registry (Redis/cache)
         $processData = $this->registry->loadPerformers();
-        
+
         foreach ($processData as $data) {
             $processInfo = $this->registry->getProcessInfo($data['pid']);
-            
+
             // If process is not running and auto-restart is enabled
-            if (!$processInfo && $this->score->shouldRestartOnFailure()) {
+            if (! $processInfo && $this->score->shouldRestartOnFailure()) {
                 $this->restartProcessFromData($data);
             }
-            
+
             // Check for memory issues if process is running
             if ($processInfo && isset($processInfo['memory_mb']) && $processInfo['memory_mb'] > 0) {
                 $memoryLimitMb = $this->getMemoryLimitForProcess($data['name']);
@@ -155,7 +159,7 @@ class Conductor
     protected function attemptRestart(Performer $performer): void
     {
         $maxAttempts = $this->score->getMaxRestartAttempts();
-        
+
         if ($performer->getRestartAttempts() < $maxAttempts) {
             $delay = $this->score->getRestartDelay();
             sleep($delay);
@@ -183,7 +187,7 @@ class Conductor
                 'event' => 'performance_started',
                 'environment' => $this->score->getEnvironment(),
                 'data' => [
-                    'performers' => $this->performers->map(fn($p) => $p->getName())->toArray(),
+                    'performers' => $this->performers->map(fn ($p) => $p->getName())->toArray(),
                     'total_count' => $this->performers->count(),
                 ],
                 'occurred_at' => Carbon::now(),
@@ -200,7 +204,7 @@ class Conductor
                 'event' => 'performance_stopped',
                 'environment' => $this->score->getEnvironment(),
                 'data' => [
-                    'performers' => $this->performers->map(fn($p) => $p->getName())->toArray(),
+                    'performers' => $this->performers->map(fn ($p) => $p->getName())->toArray(),
                 ],
                 'occurred_at' => Carbon::now(),
             ]);
@@ -270,7 +274,7 @@ class Conductor
     {
         $processData = $this->registry->loadPerformers();
         $this->conducting = $this->registry->isConducting();
-        
+
         // Note: We don't recreate Performer objects here since they contain
         // the actual Process instances. The registry just tracks PIDs and metadata.
     }
@@ -279,10 +283,10 @@ class Conductor
     {
         $processData = $this->registry->loadPerformers();
         $status = [];
-        
+
         foreach ($processData as $process) {
             $processInfo = $this->registry->getProcessInfo($process['pid']);
-            
+
             if ($processInfo) {
                 $status[] = [
                     'name' => $process['name'],
@@ -298,13 +302,14 @@ class Conductor
                 ];
             }
         }
-        
+
         return $status;
     }
 
     protected function calculateUptime(string $startedAt): string
     {
         $started = Carbon::parse($startedAt);
+
         return $started->diffForHumans(null, true);
     }
 
@@ -313,18 +318,18 @@ class Conductor
         // Extract performance name and config from process data
         $performanceName = $data['name'];
         $basePerformanceName = explode('-', $performanceName)[0]; // Remove -1, -2 suffix
-        
+
         $performances = $this->score->getPerformances();
         $config = $performances[$basePerformanceName] ?? null;
-        
-        if (!$config) {
+
+        if (! $config) {
             return;
         }
-        
+
         // Create a new performer and start it
         $performer = new Performer($performanceName, $this->score->buildCommand($config), $config);
         $performer->start();
-        
+
         // Update the registry with the new process info
         $updatedProcesses = $this->registry->loadPerformers();
         foreach ($updatedProcesses as &$process) {
@@ -334,9 +339,9 @@ class Conductor
                 break;
             }
         }
-        
+
         $this->registry->savePerformers($updatedProcesses);
-        
+
         // Record the restart event
         if ($reason && $this->shouldUseDatabase()) {
             Performance::create([
@@ -352,13 +357,13 @@ class Conductor
             ]);
         }
     }
-    
+
     protected function getMemoryLimitForProcess(string $performerName): ?int
     {
         $basePerformanceName = explode('-', $performerName)[0]; // Remove -1, -2 suffix
         $performances = $this->score->getPerformances();
         $config = $performances[$basePerformanceName] ?? null;
-        
+
         return $config['memory'] ?? null;
     }
 

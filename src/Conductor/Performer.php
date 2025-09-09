@@ -2,19 +2,27 @@
 
 namespace Subhamchbty\Orchestral\Conductor;
 
-use Symfony\Component\Process\Process;
 use Carbon\Carbon;
+use Symfony\Component\Process\Process;
 
 class Performer
 {
     protected Process $process;
+
     protected string $name;
+
     protected string $command;
+
     protected array $config;
+
     protected ?int $pid = null;
-    protected Carbon $startedAt;
+
+    protected ?Carbon $startedAt = null;
+
     protected int $restartAttempts = 0;
+
     protected ?Carbon $lastRestartAt = null;
+
     protected array $performanceMetrics = [];
 
     public function __construct(string $name, string $command, array $config)
@@ -27,10 +35,10 @@ class Performer
     public function start(): void
     {
         $processCommand = $this->buildProcessCommand();
-        
+
         // Use nohup to detach the process from the parent
         $detachedCommand = "nohup {$processCommand} > /dev/null 2>&1 & echo $!";
-        
+
         $this->process = Process::fromShellCommandline(
             $detachedCommand,
             base_path(),
@@ -44,7 +52,7 @@ class Performer
         }
 
         $this->process->run();
-        
+
         // Get the PID from the output
         $output = trim($this->process->getOutput());
         $this->pid = $output ? (int) $output : null;
@@ -89,7 +97,7 @@ class Performer
 
     public function getUptime(): ?string
     {
-        if (!isset($this->startedAt)) {
+        if (! isset($this->startedAt)) {
             return null;
         }
 
@@ -98,12 +106,12 @@ class Performer
 
     public function getMemoryUsage(): ?float
     {
-        if (!$this->isRunning() || !$this->pid) {
+        if (! $this->isRunning() || ! $this->pid) {
             return null;
         }
 
         $statusFile = "/proc/{$this->pid}/status";
-        if (!file_exists($statusFile)) {
+        if (! file_exists($statusFile)) {
             return null;
         }
 
@@ -117,12 +125,12 @@ class Performer
 
     public function getCpuUsage(): ?float
     {
-        if (!$this->isRunning() || !$this->pid) {
+        if (! $this->isRunning() || ! $this->pid) {
             return null;
         }
 
         exec("ps -p {$this->pid} -o %cpu --no-headers", $output);
-        if (!empty($output[0])) {
+        if (! empty($output[0])) {
             return (float) trim($output[0]);
         }
 
@@ -160,14 +168,14 @@ class Performer
         $isHealthy = true;
         $issues = [];
 
-        if (!$this->isRunning()) {
+        if (! $this->isRunning()) {
             $isHealthy = false;
             $issues[] = 'Process is not running';
         }
 
         $memoryUsage = $this->getMemoryUsage();
         $memoryLimit = $this->config['memory'] ?? 512;
-        
+
         if ($memoryUsage && $memoryUsage > $memoryLimit) {
             $isHealthy = false;
             $issues[] = "Memory usage ({$memoryUsage}MB) exceeds limit ({$memoryLimit}MB)";
@@ -188,22 +196,22 @@ class Performer
     {
         $memoryLimit = $this->config['memory'] ?? 512;
         $nice = $this->config['nice'] ?? 0;
-        
+
         $prefix = '';
         if ($nice != 0) {
             $prefix = "nice -n {$nice} ";
         }
-        
-        return $prefix . $this->command;
+
+        return $prefix.$this->command;
     }
 
     public function getOutput(): string
     {
-        return $this->process?->getOutput() ?? '';
+        return isset($this->process) ? $this->process->getOutput() : '';
     }
 
     public function getErrorOutput(): string
     {
-        return $this->process?->getErrorOutput() ?? '';
+        return isset($this->process) ? $this->process->getErrorOutput() : '';
     }
 }

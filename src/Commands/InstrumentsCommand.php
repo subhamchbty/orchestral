@@ -24,11 +24,12 @@ class InstrumentsCommand extends Command
     {
         $showEnvironment = $this->option('environment');
         $instruments = $this->conductor->getInstruments();
-        
+
         $this->displayHeader($showEnvironment);
-        
+
         if (empty($instruments)) {
             $this->warn('No instruments configured for the current environment.');
+
             return self::SUCCESS;
         }
 
@@ -45,7 +46,7 @@ class InstrumentsCommand extends Command
         $this->line('║        🎻 ORCHESTRAL INSTRUMENTS 🎻              ║');
         $this->line('╚══════════════════════════════════════════════════╝');
         $this->line('');
-        
+
         if ($showEnvironment) {
             $env = $this->score->getEnvironment();
             $this->info("🌍 Environment: {$env}");
@@ -61,7 +62,7 @@ class InstrumentsCommand extends Command
         foreach ($instruments as $name => $config) {
             $options = $this->formatOptions($config['options']);
             $timeout = $config['timeout'] ? "{$config['timeout']}s" : 'unlimited';
-            
+
             $rows[] = [
                 $name,
                 $config['command'],
@@ -85,7 +86,7 @@ class InstrumentsCommand extends Command
         $this->line('• Timeout: Maximum execution time (0 = unlimited)');
         $this->line('• Options: Additional command-line arguments');
         $this->line('');
-        
+
         $this->info('🎼 Available Commands:');
         $this->line('━━━━━━━━━━━━━━━━━━━━━━━━━');
         $this->line('• orchestral:conduct [name]  - Start specific or all performances');
