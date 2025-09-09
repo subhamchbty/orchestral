@@ -7,6 +7,26 @@
 
 Orchestral is an elegant Laravel package for orchestrating and conducting long-running processes with the grace of a symphony conductor. It provides a Horizon-like supervisor configuration system for managing commands like `queue:work`, `schedule:work`, and any custom long-running processes.
 
+## 📚 Table of Contents
+
+- [✨ Features](#-features)
+- [🤔 Why use Orchestral?](#-why-use-orchestral)
+  - [The Problem](#the-problem)
+  - [The Orchestral Solution](#the-orchestral-solution)
+  - [Use Cases](#use-cases)
+  - [Example Scenario](#example-scenario)
+- [📦 Installation](#-installation)
+- [🚀 Quick Start](#-quick-start)
+- [🎹 Commands](#-commands)
+- [📊 Monitoring](#-monitoring)
+- [🔧 Advanced Configuration](#-advanced-configuration)
+  - [Storage Options](#storage-options)
+  - [Process Management Settings](#process-management-settings)
+- [📄 Requirements](#-requirements)
+- [📝 License](#-license)
+- [🤝 Contributing](#-contributing)
+- [🐛 Issues](#-issues)
+
 ## ✨ Features
 
 - 🎭 **Musical-themed API** - Conduct, pause, and encore your processes
@@ -18,6 +38,64 @@ Orchestral is an elegant Laravel package for orchestrating and conducting long-r
 - ⚡ **Graceful shutdown** - Properly stop processes without data loss
 - 🗄️ **Flexible storage** - Support for Redis (fast) or Database (persistent)
 - 🎯 **Process priority control** - Set nice values for process prioritization
+
+## 🤔 Why use Orchestral?
+
+### The Problem
+
+In traditional deployment environments like Kubernetes, managing long-running Laravel processes requires:
+- **Separate pods** for each command (`queue:work`, `schedule:work`, custom workers)
+- **Complex DevOps configurations** for each process type
+- **Multiple deployment manifests** to maintain
+- **Increased infrastructure complexity** and resource overhead
+- **Dependency on DevOps team** for process configuration changes
+
+### The Orchestral Solution
+
+Orchestral simplifies this by allowing you to:
+
+✅ **Keep everything in one place** - All your long-running processes managed from a single Laravel application  
+✅ **Shift control to developers** - Configure and manage processes through Laravel config files, not Kubernetes manifests  
+✅ **Reduce deployment complexity** - Deploy one application that manages all your background processes  
+✅ **Save resources** - Run multiple process types in a single container/server with proper isolation  
+✅ **Maintain consistency** - Use the same configuration approach across all environments (local, staging, production)  
+
+### Use Cases
+
+Orchestral is perfect when you need to:
+- Run multiple queue workers with different configurations
+- Manage scheduled tasks alongside queue workers
+- Run custom long-running processes (WebSocket servers, file watchers, etc.)
+- Quickly adjust process counts and memory limits
+- Monitor and restart failed processes automatically
+- Have a Horizon-like experience for all your processes, not just queues
+
+### Example Scenario
+
+**Without Orchestral (Kubernetes):**
+```yaml
+# Multiple separate deployments needed
+- queue-default-deployment.yaml (3 replicas)
+- queue-emails-deployment.yaml (2 replicas)  
+- scheduler-deployment.yaml (1 replica)
+- websocket-deployment.yaml (1 replica)
+# Each needs separate configuration, monitoring, scaling rules
+```
+
+**With Orchestral:**
+```php
+// One configuration file manages everything
+'performances' => [
+    'production' => [
+        'queue-default' => ['command' => 'queue:work', 'performers' => 3],
+        'queue-emails' => ['command' => 'queue:work --queue=emails', 'performers' => 2],
+        'scheduler' => ['command' => 'schedule:work', 'performers' => 1],
+        'websocket' => ['command' => 'websocket:serve', 'performers' => 1],
+    ],
+],
+```
+
+Deploy once, manage everything from your Laravel application! 🎼
 
 ## 📦 Installation
 
@@ -150,7 +228,46 @@ MIT License - See [LICENSE](LICENSE) file for details.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+We welcome contributions to Orchestral! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
+
+### Getting Started
+
+1. **Fork the repository** on GitHub
+2. **Clone your fork** locally
+3. **Install dependencies**: `composer install`
+4. **Create a feature branch**: `git checkout -b feature/your-feature-name`
+
+### Development Guidelines
+
+- Write clear, descriptive commit messages
+- Keep changes focused and atomic
+- Update documentation for any new features
+- **Format your code** with Laravel Pint before submitting: `./vendor/bin/pint`
+
+### Testing Requirements
+
+**Important**: All contributions must include appropriate test cases. When submitting a pull request:
+
+- ✅ **Add unit tests** for new functionality
+- ✅ **Add integration tests** for command interactions
+- ✅ **Update existing tests** if modifying behavior
+- ✅ **Ensure all tests pass** before submitting
+- ✅ **Test edge cases** and error conditions
+
+Run the test suite:
+```bash
+./vendor/bin/pest
+```
+
+### Submitting Changes
+
+1. **Run the test suite** to ensure everything works
+2. **Push your changes** to your fork
+3. **Create a pull request** with:
+   - Clear description of changes
+   - Reference to any related issues
+   - Screenshots/examples if applicable
+   - Confirmation that tests are included
 
 ## 🐛 Issues
 

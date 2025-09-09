@@ -32,32 +32,33 @@ class EncoreCommand extends Command
         try {
             $this->info('⏸️ First, the orchestra takes a bow...');
             $this->conductor->pause($performance);
-            
+
             if ($delay > 0) {
                 $this->info("⏳ Intermission for {$delay} seconds...");
                 $this->output->write('');
-                
+
                 $bar = $this->output->createProgressBar($delay);
                 $bar->start();
-                
+
                 for ($i = 0; $i < $delay; $i++) {
                     sleep(1);
                     $bar->advance();
                 }
-                
+
                 $bar->finish();
                 $this->line('');
             }
-            
+
             $this->info('🎼 The encore begins!');
             $this->conductor->conduct($performance);
-            
+
             $this->info('✨ The orchestra plays once more!');
             $this->displayStatus();
 
             return self::SUCCESS;
         } catch (\Exception $e) {
-            $this->error('❌ The encore could not be performed: ' . $e->getMessage());
+            $this->error('❌ The encore could not be performed: '.$e->getMessage());
+
             return self::FAILURE;
         }
     }
@@ -65,7 +66,7 @@ class EncoreCommand extends Command
     protected function displayStatus(): void
     {
         $status = $this->conductor->getStatus();
-        
+
         $this->table(
             ['Performer', 'PID', 'Status', 'Restarts'],
             collect($status['performers'])->map(function ($performer) {

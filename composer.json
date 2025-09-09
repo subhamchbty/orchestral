@@ -30,8 +30,9 @@
         "symfony/process": "^7.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^9.0",
-        "pestphp/pest": "^3.0"
+        "orchestra/testbench": "^10.0",
+        "pestphp/pest": "^3.0",
+        "laravel/pint": "^1.24"
     },
     "autoload": {
         "psr-4": {
@@ -51,5 +52,10 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
 }

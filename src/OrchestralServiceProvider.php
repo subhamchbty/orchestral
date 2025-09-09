@@ -27,7 +27,7 @@ class OrchestralServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(ProcessRegistry::class, function ($app) {
-            return new ProcessRegistry();
+            return new ProcessRegistry;
         });
 
         $this->app->singleton(Conductor::class, function ($app) {
@@ -56,7 +56,7 @@ class OrchestralServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../config/orchestral.php' => config_path('orchestral.php'),
             ], 'orchestral');
-            
+
             $this->publishesMigrations([
                 __DIR__.'/../database/migrations/create_orchestral_performances_table.php.stub' => 'create_orchestral_performances_table.php',
             ], 'orchestral');

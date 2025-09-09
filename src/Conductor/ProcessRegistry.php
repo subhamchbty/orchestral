@@ -3,22 +3,22 @@
 namespace Subhamchbty\Orchestral\Conductor;
 
 use Illuminate\Support\Facades\Cache;
-use Carbon\Carbon;
 
 class ProcessRegistry
 {
     protected const CACHE_KEY = 'orchestral:processes';
+
     protected const CONDUCTING_KEY = 'orchestral:conducting';
 
     public function savePerformers($performers): void
     {
         $processData = [];
-        
+
         foreach ($performers as $performer) {
             // Handle both Performer objects and arrays
             if (is_object($performer)) {
                 $pid = $performer->getPid();
-                
+
                 $processData[] = [
                     'name' => $performer->getName(),
                     'command' => $performer->getCommand(),
@@ -29,7 +29,7 @@ class ProcessRegistry
                 $processData[] = $performer;
             }
         }
-        
+
         Cache::put(self::CACHE_KEY, $processData, now()->addDays(7));
     }
 
@@ -37,13 +37,13 @@ class ProcessRegistry
     {
         $processData = Cache::get(self::CACHE_KEY, []);
         $activeProcesses = [];
-        
+
         foreach ($processData as $data) {
             if ($this->isProcessRunning($data['pid'])) {
                 $activeProcesses[] = $data;
             }
         }
-        
+
         // Clean up if processes have changed or refresh TTL
         if (count($activeProcesses) !== count($processData)) {
             Cache::put(self::CACHE_KEY, $activeProcesses, now()->addDays(7));
@@ -51,7 +51,7 @@ class ProcessRegistry
             // Refresh TTL to keep active processes in cache
             Cache::put(self::CACHE_KEY, $activeProcesses, now()->addDays(7));
         }
-        
+
         return $activeProcesses;
     }
 
@@ -76,16 +76,16 @@ class ProcessRegistry
 
     protected function isProcessRunning(?int $pid): bool
     {
-        if (!$pid) {
+        if (! $pid) {
             return false;
         }
-        
+
         return file_exists("/proc/{$pid}");
     }
 
     public function getProcessInfo(int $pid): ?array
     {
-        if (!$this->isProcessRunning($pid)) {
+        if (! $this->isProcessRunning($pid)) {
             return null;
         }
 
@@ -107,7 +107,7 @@ class ProcessRegistry
 
         // Get CPU usage
         exec("ps -p {$pid} -o %cpu --no-headers 2>/dev/null", $output);
-        if (!empty($output[0])) {
+        if (! empty($output[0])) {
             $info['cpu_percent'] = (float) trim($output[0]);
         }
 
