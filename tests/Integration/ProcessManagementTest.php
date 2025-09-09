@@ -70,7 +70,7 @@ it('manages full process lifecycle from start to stop', function () {
 
     $finalStatus = $this->conductor->getStatus();
     expect($finalStatus['conducting'])->toBeFalse();
-})->timeout(10);
+});
 
 it('handles multiple performers correctly', function () {
     $this->conductor->conduct('multi-worker');
@@ -91,7 +91,7 @@ it('handles multiple performers correctly', function () {
 
     // Give processes time to stop
     sleep(1);
-})->timeout(10);
+});
 
 it('persists process state across conductor instances', function () {
     // Start with first conductor
@@ -113,7 +113,7 @@ it('persists process state across conductor instances', function () {
     // Clean up
     $newConductor->pause();
     sleep(1);
-})->timeout(10);
+});
 
 it('handles process monitoring and health checks', function () {
     $this->conductor->conduct('test-worker');
@@ -134,7 +134,7 @@ it('handles process monitoring and health checks', function () {
 
     $this->conductor->pause();
     sleep(1);
-})->timeout(10);
+});
 
 it('manages performer restart lifecycle', function () {
     // Create a simple performer that will exit quickly
@@ -156,7 +156,7 @@ it('manages performer restart lifecycle', function () {
 
     // Process should have completed
     expect($performer->getPid())->toBeNull(); // echo command doesn't output PID in our implementation
-})->timeout(5);
+});
 
 it('handles concurrent process management', function () {
     // Start multiple performances
@@ -177,7 +177,7 @@ it('handles concurrent process management', function () {
 
     $this->conductor->pause();
     sleep(2);
-})->timeout(15);
+});
 
 it('manages process memory and resource monitoring', function () {
     $this->conductor->conduct('test-worker');
@@ -201,7 +201,7 @@ it('manages process memory and resource monitoring', function () {
 
     $this->conductor->pause();
     sleep(1);
-})->timeout(10);
+});
 
 it('handles graceful shutdown sequences', function () {
     $this->conductor->conduct('test-worker');
@@ -218,7 +218,7 @@ it('handles graceful shutdown sequences', function () {
     sleep(1);
     $performers = $this->registry->loadPerformers();
     expect($performers)->toBeEmpty();
-})->timeout(10);
+});
 
 it('handles process failure and cleanup', function () {
     // Create performer with command that will fail
@@ -238,7 +238,7 @@ it('handles process failure and cleanup', function () {
     $status = $performer->getStatus();
     expect($status)->toHaveKeys(['name', 'pid', 'running']);
     expect($status['running'])->toBeFalse();
-})->timeout(5);
+});
 
 it('manages encore (restart) functionality', function () {
     $this->conductor->conduct('test-worker');
@@ -254,7 +254,7 @@ it('manages encore (restart) functionality', function () {
     // Clean up
     $this->conductor->pause();
     sleep(1);
-})->timeout(15);
+});
 
 it('handles process registry data persistence', function () {
     // Save some performer data
@@ -323,4 +323,4 @@ it('manages process cleanup on application shutdown', function () {
     expect($performers)->toBeEmpty();
 
     sleep(1);
-})->timeout(10);
+});

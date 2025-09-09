@@ -10,6 +10,9 @@ abstract class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        // Run migrations for tests that need the database
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
     protected function getPackageProviders($app)
@@ -28,5 +31,9 @@ abstract class TestCase extends BaseTestCase
             'database' => ':memory:',
             'prefix' => '',
         ]);
+
+        // Load the orchestral config
+        $config = require __DIR__.'/../config/orchestral.php';
+        $app['config']->set('orchestral', $config);
     }
 }
