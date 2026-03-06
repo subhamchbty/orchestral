@@ -7,7 +7,7 @@ use Symfony\Component\Process\Process;
 beforeEach(function () {
     // Set up test environment
     $this->performerName = 'test-worker';
-    $this->command = 'php artisan queue:work';
+    $this->command = ['php', 'artisan', 'queue:work'];
     $this->config = [
         'memory' => 256,
         'timeout' => 60,
@@ -33,7 +33,7 @@ it('builds process command with nice priority', function () {
         'options' => ['--queue' => 'high,default', '--sleep' => '3'],
     ];
 
-    $performer = new Performer('worker', 'php artisan queue:work', $config);
+    $performer = new Performer('worker', ['php', 'artisan', 'queue:work'], $config);
 
     // Use reflection to test protected method
     $reflection = new ReflectionClass($performer);
@@ -42,7 +42,7 @@ it('builds process command with nice priority', function () {
 
     $command = $method->invoke($performer);
 
-    expect($command)->toBe('nice -n 10 php artisan queue:work');
+    expect($command)->toBe("nice -n 10 'php' 'artisan' 'queue:work'");
 });
 
 it('builds command without nice priority', function () {
@@ -52,7 +52,7 @@ it('builds command without nice priority', function () {
         'options' => [],
     ];
 
-    $performer = new Performer('worker', 'php artisan test', $config);
+    $performer = new Performer('worker', ['php', 'artisan', 'test'], $config);
 
     $reflection = new ReflectionClass($performer);
     $method = $reflection->getMethod('buildProcessCommand');
@@ -60,7 +60,7 @@ it('builds command without nice priority', function () {
 
     $command = $method->invoke($performer);
 
-    expect($command)->toBe('php artisan test');
+    expect($command)->toBe("'php' 'artisan' 'test'");
 });
 
 it('tracks restart attempts correctly', function () {
@@ -183,7 +183,7 @@ it('handles config with nice priority', function () {
         'options' => [],
     ];
 
-    $performer = new Performer('worker', 'php test.php', $config);
+    $performer = new Performer('worker', ['php', 'test.php'], $config);
 
     $reflection = new ReflectionClass($performer);
     $method = $reflection->getMethod('buildProcessCommand');
@@ -191,21 +191,20 @@ it('handles config with nice priority', function () {
 
     $command = $method->invoke($performer);
 
-    // The nice value is set via environment variable in the actual implementation
-    expect($command)->toContain('php test.php');
+    expect($command)->toContain('test.php');
 });
 
 it('handles different nice priorities', function () {
     $configs = [
-        ['nice' => 0, 'expected' => 'php test'],
-        ['nice' => 5, 'expected' => 'nice -n 5 php test'],
-        ['nice' => -5, 'expected' => 'nice -n -5 php test'],
-        ['nice' => 19, 'expected' => 'nice -n 19 php test'],
+        ['nice' => 0, 'expected' => "'php' 'test'"],
+        ['nice' => 5, 'expected' => "nice -n 5 'php' 'test'"],
+        ['nice' => -5, 'expected' => "nice -n -5 'php' 'test'"],
+        ['nice' => 19, 'expected' => "nice -n 19 'php' 'test'"],
     ];
 
     foreach ($configs as $test) {
         $config = array_merge(['memory' => 256, 'timeout' => 60], $test);
-        $performer = new Performer('worker', 'php test', $config);
+        $performer = new Performer('worker', ['php', 'test'], $config);
 
         $reflection = new ReflectionClass($performer);
         $method = $reflection->getMethod('buildProcessCommand');
