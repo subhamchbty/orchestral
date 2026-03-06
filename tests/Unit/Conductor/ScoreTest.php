@@ -201,7 +201,7 @@ it('builds command with options', function () {
 
     $command = $score->buildCommand($performance);
 
-    expect($command)->toBe('php artisan queue:work --queue=high,default --sleep=3 verbose');
+    expect($command)->toBe(['php', 'artisan', 'queue:work', '--queue=high,default', '--sleep=3', 'verbose']);
 });
 
 it('builds command without options', function () {
@@ -214,7 +214,7 @@ it('builds command without options', function () {
 
     $command = $score->buildCommand($performance);
 
-    expect($command)->toBe('php artisan horizon');
+    expect($command)->toBe(['php', 'artisan', 'horizon']);
 });
 
 it('builds command with missing options key', function () {
@@ -226,7 +226,7 @@ it('builds command with missing options key', function () {
 
     $command = $score->buildCommand($performance);
 
-    expect($command)->toBe('php artisan test');
+    expect($command)->toBe(['php', 'artisan', 'test']);
 });
 
 it('handles boolean values in options', function () {

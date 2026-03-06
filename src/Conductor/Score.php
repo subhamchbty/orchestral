@@ -91,20 +91,20 @@ class Score
         return array_keys($this->getPerformances());
     }
 
-    public function buildCommand(array $performance): string
+    public function buildCommand(array $performance): array
     {
-        $command = 'php artisan '.$performance['command'];
+        $parts = ['php', 'artisan', $performance['command']];
 
         if (! empty($performance['options'])) {
             foreach ($performance['options'] as $key => $value) {
                 if (is_numeric($key)) {
-                    $command .= ' '.$value;
+                    $parts[] = (string) $value;
                 } else {
-                    $command .= ' '.$key.'='.$value;
+                    $parts[] = $key.'='.$value;
                 }
             }
         }
 
-        return $command;
+        return $parts;
     }
 }

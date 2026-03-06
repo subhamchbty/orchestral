@@ -11,7 +11,7 @@ class Performer
 
     protected string $name;
 
-    protected string $command;
+    protected array $command;
 
     protected array $config;
 
@@ -25,7 +25,7 @@ class Performer
 
     protected array $performanceMetrics = [];
 
-    public function __construct(string $name, string $command, array $config)
+    public function __construct(string $name, array $command, array $config)
     {
         $this->name = $name;
         $this->command = $command;
@@ -46,10 +46,6 @@ class Performer
             null,
             10 // Short timeout since we just need to get the PID
         );
-
-        if (isset($this->config['nice'])) {
-            $this->process->setEnv(['NICE' => $this->config['nice']]);
-        }
 
         $this->process->run();
 
@@ -92,7 +88,7 @@ class Performer
 
     public function getCommand(): string
     {
-        return $this->command;
+        return implode(' ', $this->command);
     }
 
     public function getUptime(): ?string
@@ -151,7 +147,7 @@ class Performer
     {
         return [
             'name' => $this->name,
-            'command' => $this->command,
+            'command' => $this->getCommand(),
             'pid' => $this->pid,
             'running' => $this->isRunning(),
             'uptime' => $this->getUptime(),
@@ -194,15 +190,14 @@ class Performer
 
     protected function buildProcessCommand(): string
     {
-        $memoryLimit = $this->config['memory'] ?? 512;
-        $nice = $this->config['nice'] ?? 0;
+        $nice = (int) ($this->config['nice'] ?? 0);
+        $escaped = implode(' ', array_map('escapeshellarg', $this->command));
 
-        $prefix = '';
-        if ($nice != 0) {
-            $prefix = "nice -n {$nice} ";
+        if ($nice !== 0) {
+            return "nice -n {$nice} {$escaped}";
         }
 
-        return $prefix.$this->command;
+        return $escaped;
     }
 
     public function getOutput(): string

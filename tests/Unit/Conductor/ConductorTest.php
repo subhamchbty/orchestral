@@ -48,10 +48,10 @@ it('conducts all performances when no specific name given', function () {
 
     $this->score->shouldReceive('buildCommand')
         ->with(['command' => 'php test1', 'performers' => 1])
-        ->andReturn('php test1');
+        ->andReturn(['php', 'test1']);
     $this->score->shouldReceive('buildCommand')
         ->with(['command' => 'php test2', 'performers' => 2])
-        ->andReturn('php test2');
+        ->andReturn(['php', 'test2']);
 
     $this->registry->shouldReceive('setConducting')
         ->once()
@@ -75,7 +75,7 @@ it('conducts specific performance when name provided', function () {
 
     $this->score->shouldReceive('buildCommand')
         ->with($performance)
-        ->andReturn('php test');
+        ->andReturn(['php', 'test']);
 
     $this->registry->shouldReceive('setConducting')
         ->once()
