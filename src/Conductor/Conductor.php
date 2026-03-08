@@ -317,7 +317,7 @@ class Conductor
     {
         // Extract performance name and config from process data
         $performanceName = $data['name'];
-        $basePerformanceName = explode('-', $performanceName)[0]; // Remove -1, -2 suffix
+        $basePerformanceName = preg_replace('/-\d+$/', '', $performanceName);
 
         $performances = $this->score->getPerformances();
         $config = $performances[$basePerformanceName] ?? null;
@@ -360,7 +360,7 @@ class Conductor
 
     protected function getMemoryLimitForProcess(string $performerName): ?int
     {
-        $basePerformanceName = explode('-', $performerName)[0]; // Remove -1, -2 suffix
+        $basePerformanceName = preg_replace('/-\d+$/', '', $performerName);
         $performances = $this->score->getPerformances();
         $config = $performances[$basePerformanceName] ?? null;
 

@@ -301,6 +301,21 @@ it('calculates uptime correctly', function () {
     expect($uptime)->toContain('2 hours');
 });
 
+it('gets memory limit for hyphenated performance name', function () {
+    $config = ['command' => 'queue:work', 'performers' => 2, 'memory' => 128];
+
+    $this->score->shouldReceive('getPerformances')
+        ->andReturn(['queue-worker' => $config]);
+
+    $reflection = new ReflectionClass($this->conductor);
+    $method = $reflection->getMethod('getMemoryLimitForProcess');
+    $method->setAccessible(true);
+
+    $limit = $method->invoke($this->conductor, 'queue-worker-1');
+
+    expect($limit)->toBe(128);
+});
+
 it('checks if should use database storage', function () {
     $reflection = new ReflectionClass($this->conductor);
     $method = $reflection->getMethod('shouldUseDatabase');
